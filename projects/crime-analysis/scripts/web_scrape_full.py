@@ -2,10 +2,86 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+import re
+
+def parse_row_intelligently(row_data):
+    """
+    Intelligently parse a row by detecting data types rather than relying on position.
+    Returns a standardized 11-column row.
+    """
+    # Helper function to check if a value is a percentage
+    def is_percent(val):
+        return '%' in val
+    
+    # Helper function to check if a value is likely a vote count (large number with commas)
+    def is_vote_count(val):
+        return ',' in val and val.replace(',', '').isdigit()
+    
+    # Helper function to check if a value is likely an EV (small integer)
+    def is_ev(val):
+        return val.isdigit() and int(val) <= 100
+    
+    if len(row_data) < 7:
+        return None  # Not enough data
+    
+    # Initialize result with 11 columns
+    result = [''] * 11
+    result[0] = row_data[0]  # STATE
+    result[1] = row_data[1]  # TOTAL_VOTES
+    
+    # Parse the remaining columns (starting from index 2)
+    remaining = row_data[2:]
+    idx = 0
+    
+    # Parse Democratic candidate data (positions 2-4)
+    if idx < len(remaining):
+        # Should be: Votes, %, [EV]
+        if is_vote_count(remaining[idx]) or remaining[idx].isdigit():
+            result[2] = remaining[idx]  # Democratic_Votes
+            idx += 1
+        
+        if idx < len(remaining) and is_percent(remaining[idx]):
+            result[3] = remaining[idx]  # Democratic_Percent
+            idx += 1
+        
+        if idx < len(remaining) and is_ev(remaining[idx]):
+            result[4] = remaining[idx]  # Democratic_EV
+            idx += 1
+    
+    # Parse Republican candidate data (positions 5-7)
+    if idx < len(remaining):
+        if is_vote_count(remaining[idx]) or remaining[idx].isdigit():
+            result[5] = remaining[idx]  # Republican_Votes
+            idx += 1
+        
+        if idx < len(remaining) and is_percent(remaining[idx]):
+            result[6] = remaining[idx]  # Republican_Percent
+            idx += 1
+        
+        if idx < len(remaining) and is_ev(remaining[idx]):
+            result[7] = remaining[idx]  # Republican_EV
+            idx += 1
+    
+    # Parse Others candidate data (positions 8-10) - only in recent elections
+    if idx < len(remaining):
+        if is_vote_count(remaining[idx]) or remaining[idx].isdigit():
+            result[8] = remaining[idx]  # Others_Votes
+            idx += 1
+        
+        if idx < len(remaining) and is_percent(remaining[idx]):
+            result[9] = remaining[idx]  # Others_Percent
+            idx += 1
+        
+        if idx < len(remaining) and is_ev(remaining[idx]):
+            result[10] = remaining[idx]  # Others_EV
+            idx += 1
+    
+    return result
+
 
 def scrape_election_table(url):
     """
-    Scrape the 2024 election table from UCSB Presidency website
+    Scrape election table from UCSB Presidency website
     
     Args:
         url: URL of the page to scrape
@@ -34,90 +110,34 @@ def scrape_election_table(url):
     tbody = table.find('tbody')
     
     for tr in tbody.find_all('tr'):
-        # Get all td elements (including empty ones)
+        # Get all td elements
         tds = tr.find_all('td')
         
         # Extract only non-empty cells
         row_data = []
         for td in tds:
             cell_text = td.get_text(strip=True)
-            # Only append non-empty cells
             if cell_text:
                 row_data.append(cell_text)
         
-        # State data rows can have 7, 8, 9, or 11 non-empty columns
-        # 7 columns: 2012 format with one missing EV (most common)
-        # 8 columns: 2012 format with all EVs present
-        # 9 columns: 2016-2024 format with missing EV values
-        # 11 columns: complete data with all EV values (header/totals)
-        if len(row_data) in [7, 8, 9, 11]:
-            rows.append(row_data)
+        # Only process rows with enough data (at least 7 columns for state data)
+        if len(row_data) >= 7:
+            parsed_row = parse_row_intelligently(row_data)
+            if parsed_row:
+                rows.append(parsed_row)
     
-    # Process rows to ensure all have 11 columns
-    processed_rows = []
-    for row in rows:
-        if len(row) == 7:
-            # 2012 format: STATE, TOTAL, Dem_Votes, Dem_%, Rep_Votes, Rep_%, Rep_EV
-            # Missing Democratic EV (empty)
-            new_row = [
-                row[0],  # STATE
-                row[1],  # TOTAL_VOTES
-                row[2],  # Democratic_Votes
-                row[3],  # Democratic_Percent
-                '',      # Democratic_EV (empty)
-                row[4],  # Republican_Votes
-                row[5],  # Republican_Percent
-                row[6],  # Republican_EV
-                '',      # Others_Votes (empty for 2012)
-                '',      # Others_Percent (empty for 2012)
-                ''       # Others_EV (empty for 2012)
-            ]
-            processed_rows.append(new_row)
-        elif len(row) == 8:
-            # 2012 format with all EVs: STATE, TOTAL, Dem_Votes, Dem_%, Dem_EV, Rep_Votes, Rep_%, Rep_EV
-            new_row = [
-                row[0],  # STATE
-                row[1],  # TOTAL_VOTES
-                row[2],  # Democratic_Votes
-                row[3],  # Democratic_Percent
-                row[4],  # Democratic_EV
-                row[5],  # Republican_Votes
-                row[6],  # Republican_Percent
-                row[7],  # Republican_EV
-                '',      # Others_Votes (empty for 2012)
-                '',      # Others_Percent (empty for 2012)
-                ''       # Others_EV (empty for 2012)
-            ]
-            processed_rows.append(new_row)
-        elif len(row) == 9:
-            # 2016-2024 format with missing EVs
-            new_row = [
-                row[0],  # STATE
-                row[1],  # TOTAL_VOTES
-                row[2],  # Democratic_Votes
-                row[3],  # Democratic_Percent
-                '',      # Democratic_EV (empty)
-                row[4],  # Republican_Votes
-                row[5],  # Republican_Percent
-                row[6],  # Republican_EV
-                row[7],  # Others_Votes
-                row[8],  # Others_Percent
-                ''       # Others_EV (empty)
-            ]
-            processed_rows.append(new_row)
-        else:
-            # 11 columns - complete data
-            processed_rows.append(row)
-    
-    # Define the column names (Democratic candidate first, Republican second)
+    # Define the column names
     headers = ['STATE', 'TOTAL_VOTES', 'Democratic_Votes', 'Democratic_Percent', 'Democratic_EV', 
                'Republican_Votes', 'Republican_Percent', 'Republican_EV', 'Others_Votes', 'Others_Percent', 'Others_EV']
     
     # Create DataFrame
-    df = pd.DataFrame(processed_rows, columns=headers)
+    df = pd.DataFrame(rows, columns=headers)
     
     # Filter out the header row if it got included
     df = df[df['STATE'] != 'STATE']
+    
+    # Filter out rows where STATE column contains long text (like instructions)
+    df = df[df['STATE'].str.len() < 50]
     
     return df
 
@@ -126,12 +146,10 @@ def scrape_election_table(url):
 if __name__ == "__main__":
     try:
         # Create output directory if it doesn't exist
-        # Using Path from pathlib is more modern and cleaner
         from pathlib import Path
         
         # Script is in: crime-analysis/scripts/web_scrape_full.py
         # We need to save to: crime-analysis/data/raw/
-        # So go up one level (..) then into data/raw
         output_dir = Path(__file__).parent.parent / "data" / "raw"
         
         print(f"Saving files to: {output_dir.absolute()}")
