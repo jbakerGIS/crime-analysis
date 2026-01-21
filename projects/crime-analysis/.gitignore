@@ -1,0 +1,15 @@
+# ArcGIS Pro Project Files
+*.aprx
+
+# File Geodatabases (Folder) - Ignores the folder and its contents
+*.gdb/
+
+# Lock Files (often created inside GDBs or folders)
+*.lock
+*.lck
+
+# Other ArcGIS/OS Generated Files
+*.bak
+*.log
+*.tmp
+*.sde
