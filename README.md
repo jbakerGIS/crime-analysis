@@ -124,16 +124,22 @@ Limited hot spots emerged, highlighting the dominance of outlier states rather t
 
 ## 🗺️ Key Maps & Figures
 Political Majority by State (2012–2024)
+![political_majority_by_state](https://github.com/user-attachments/assets/aaf84566-51d1-4bd5-81bc-8a848a3b1f36)
 
 Violent Incidents per 100k Residents (2024)
+![Violent Incidents per 100k (2024)](https://github.com/user-attachments/assets/31610616-0821-4b03-b516-e3bf68d90266)
 
 Percent Change in Violent Crime (2019–2024)
+![Percent Change Violent Crime 2019-2024](https://github.com/user-attachments/assets/1fced942-cfaa-4462-a922-a88012ac0f2a)
 
 Hot Spot Analysis
+![hot-spot-analysis](https://github.com/user-attachments/assets/8561fc68-8ff4-4e93-9bd4-eaeceab9b0e7)
 
 Mean Violent Crime by Political Majority
+![mean_violent_crime_by_party](https://github.com/user-attachments/assets/47c65c88-68ef-4c70-a32f-6aff0fbbc4ee)
 
 Mean Violent Crime by Region
+![mean_violent_crime_by_region](https://github.com/user-attachments/assets/3c1ef996-5d6f-4dba-8aa7-bb51689f3e41)
 
 ## 📊 Results Summary
 
