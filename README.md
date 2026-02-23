@@ -7,12 +7,14 @@ gis-portfolio/
 │
 ├── README.md
 ├── projects/
-│   ├── wildfire-risk-mapping/
+│   ├── crime-analysis/
 │   │   ├── README.md
-│   │   ├── maps/
-│   │   ├── figures/
 │   │   ├── data/
-│   │   └── metadata/
+│   │   ├── figures/
+│   │   ├── maps/
+│   │   ├── metadata/
+│   │   ├── notebooks/
+│   │   └── scripts/
 │   │
 │   ├── land-use-suitability/
 │   └── hydrology-analysis/
