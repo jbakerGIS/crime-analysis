@@ -176,6 +176,7 @@ Spatial Statistics: Moran’s I, Getis-Ord Gi*
 Version Control: Git & GitHub
 
 ## 📁 Repository Structure
+```
 crime-analysis/
 │
 ├── data/
@@ -195,6 +196,7 @@ crime-analysis/
 ├── figures/
 ├── maps/
 └── README.md
+```
 
 ## 🧑‍💻 Author
 Justin Baker
