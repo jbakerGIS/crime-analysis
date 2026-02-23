@@ -16,7 +16,7 @@ Are there statistically significant spatial clusters of violent crime?
 Do regional patterns explain crime variation better than political alignment?
 
 ## 🧾 Data Sources
-Crime Data
+### Crime Data
 
 Violent crime incidents by state (2024)
 
@@ -24,7 +24,7 @@ Normalized to incidents per 100,000 residents
 
 Source: FBI UCR Program via Council of State Governments Justice Center
 
-Election Data
+### Election Data
 
 Presidential election results: 2012, 2016, 2020, 2024
 
@@ -35,8 +35,11 @@ Aggregated to determine long-term state political majority
 ## 🧠 Methods
 ### 1️⃣ Election Data Collection (Python Web Scraping)
 
-Script: scripts/voting_results_web_scrape.py
-Notebook: notebooks/web_scrape_test.ipynb
+Script: 
+- scripts/voting_results_web_scrape.py
+  
+Notebook:
+- notebooks/web_scrape_test.ipynb
 
 Scraped election result tables using requests and BeautifulSoup
 
@@ -50,8 +53,11 @@ Key outcome: Clean, structured election datasets for four presidential cycles
 
 ### 2️⃣ Political Majority Determination
 
-Script: scripts/election_results_analysis.py
-Notebook: notebooks/spreadsheet_analysis_test.ipynb
+Script: 
+- scripts/election_results_analysis.py
+
+Notebook:
+- notebooks/spreadsheet_analysis_test.ipynb
 
 Compared Democratic vs Republican vote totals for each state and year
 
@@ -61,11 +67,9 @@ Aggregated results across all four elections
 
 Assigned each state a Majority_Party:
 
-Democratic
-
-Republican
-
-Tie
+- Democratic
+- Republican
+- Tie
 
 📄 Final output:
 /data/final/state_majority_party.csv
@@ -76,32 +80,30 @@ Notebook: notebooks/gis_analysis.ipynb
 
 Steps performed using arcpy:
 
-Added a Region field (Northeast, Midwest, South, West)
+- Added a Region field (Northeast, Midwest, South, West)
 
-Joined:
+- Joined:
 
-Political majority CSV → state polygons
+  - Political majority CSV → state polygons
 
-Crime data CSV → joined state feature class
+  - Crime data CSV → joined state feature class
 
-Created finalized analysis feature class:
+- Created finalized analysis feature class:
 
-USA_States_Crime_Join
+  - USA_States_Crime_Join
 
 ### 4️⃣ Exploratory & Statistical Analysis
 Summary Statistics
 
 Mean and median violent crime rates calculated by:
 
-Political majority
+- Political majority
 
-Region
+- Region
 
 Charts
 
 Bar charts: mean crime by party & region
-
-Violin plots: crime distribution by political majority
 
 Used matplotlib and seaborn for exportable figures
 
@@ -112,7 +114,7 @@ Moran’s I used to test whether violent crime rates are spatially clustered
 
 Results documented in:
 
-Spatial Autocorrelation Report.pdf
+- Spatial Autocorrelation Report.pdf
 
 Hot Spot Analysis (Getis-Ord Gi*)
 
